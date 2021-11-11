@@ -1,7 +1,9 @@
-# Inductive Graph-based Matrix Completion
+# Inductive Graph-based Matrix Completion for Cinematic Experience
 
 Paper link: [https://arxiv.org/abs/1904.12058](https://arxiv.org/abs/1904.12058)
 Author's code: [https://github.com/muhanzhang/IGMC](https://github.com/muhanzhang/IGMC)
+Reference code: [https://github.com/zhoujf620/Motif-based-inductive-GNN-training](https://github.com/zhoujf620/Motif-based-inductive-GNN-training)
+
 
 ## Dependencies
 
@@ -10,7 +12,7 @@ Author's code: [https://github.com/muhanzhang/IGMC](https://github.com/muhanzhan
 
 ## Data
 
-Supported datasets: ml-100k, ml-1m
+Supported datasets: ml-100k, ml-1m, rotten_tomato
 
 ## How to run
 
