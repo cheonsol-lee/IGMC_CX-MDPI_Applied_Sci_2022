@@ -99,20 +99,28 @@ def map_data(data):
 def load_official_trainvaltest_split(testing=False, rating_map=None, post_rating_map=None, ratio=1.0):
     dtypes = {'u_nodes': np.int16, 'v_nodes': np.int16, 'ratings': np.float16}
     
-    level = '0.5'
+    rating_num = '0.5' # 10점 스케일
+#     rating_num = '5' # 5점 스케일
     
     # Small data
 #     data_train = pd.read_csv(path + 's_trainset.csv', dtype=dtypes)
 #     data_test  = pd.read_csv(path + 's_testset.csv', dtype=dtypes)
     
     # Large data
-    data_train = pd.read_csv(path + 'l_trainset.csv', dtype=dtypes)
-    data_test  = pd.read_csv(path + 'l_testset.csv', dtype=dtypes)
+#     data_train = pd.read_csv(path + 'l_trainset.csv', dtype=dtypes)
+#     data_test  = pd.read_csv(path + 'l_testset.csv', dtype=dtypes)
     
+#     data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_'+rating_num:'ratings'}, inplace=True)
+#     data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_'+rating_num:'ratings'}, inplace=True)
+#     columns = ['u_nodes','v_nodes','ratings','review_score','sentiment','emotion','review_date','origin_rating_'+rating_num,'review_content']
+
+    # GCMC 데이터 형태(기존 데이터)
+    data_train = pd.read_csv(path + 'trainset_filtered.csv', dtype=dtypes)
+    data_test  = pd.read_csv(path + 'testset_filtered.csv', dtype=dtypes)
     
-    data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_'+level:'ratings'}, inplace=True)
-    data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_'+level:'ratings'}, inplace=True)
-    columns = ['u_nodes','v_nodes','ratings','review_score','sentiment','emotion','review_date','origin_rating_'+level,'review_content']
+    data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_'+rating_num:'ratings'}, inplace=True)
+    data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_'+rating_num:'ratings'}, inplace=True)
+    columns = ['u_nodes','v_nodes','ratings','review_score','sentiment','emotion','review_date','origin_rating_'+rating_num,'review_content']
     
     
     data_train = data_train[columns]
