@@ -47,17 +47,38 @@ def collate_rotten_tomato_multi(data):
 
 if __name__ == "__main__":
     import time
-    from data import MovieLens
-    movielens = MovieLens("ml-100k", testing=False)
+    from explicit_data_rotten import RottenTomato
+    path = './raw_data/rotten_tomato/'
+    rotten_tomato_r = RottenTomato('rating',    path, testing=args.testing,test_ratio=args.data_test_ratio, valid_ratio=args.data_valid_ratio)
+    rotten_tomato_s = RottenTomato('sentiment', path, testing=args.testing,test_ratio=args.data_test_ratio, valid_ratio=args.data_valid_ratio)
+    rotten_tomato_e = RottenTomato('emotion',   path, testing=args.testing,test_ratio=args.data_test_ratio, valid_ratio=args.data_valid_ratio)
 
-    train_dataset = MovieLensDataset(
-        movielens.train_rating_pairs, movielens.train_rating_values, movielens.train_graph, 
-        hop=1, sample_ratio=1.0, max_nodes_per_hop=200)
+    train_dataset = RottenTomatoDataset(rotten_tomato_r.train_rating_pairs, rotten_tomato_r.train_rating_values, rotten_tomato_r.train_graph, 
+    hop=1, sample_ratio=1.0, max_nodes_per_hop=200)
 
-    train_loader = th.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True, 
-                            num_workers=8, collate_fn=collate_movielens)
+    train_loader = th.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=0, collate_fn=collate_rotten_tomato)
     # batch = next(iter(train_loader))
+    
+    
+    # 궁금한 부분!!!!
+    train_dataset_r = RottenTomatoDataset(
+    rotten_tomato_r.train_rating_pairs, rotten_tomato_r.train_rating_values, rotten_tomato_r.train_graph, 
+    args.hop, args.sample_ratio, args.max_nodes_per_hop)
 
+    train_dataset_s = RottenTomatoDataset(
+    rotten_tomato_s.train_rating_pairs, rotten_tomato_s.train_rating_values, rotten_tomato_s.train_graph, 
+    args.hop, args.sample_ratio, args.max_nodes_per_hop)
+
+    train_dataset_e = RottenTomatoDataset(
+    rotten_tomato_e.train_rating_pairs, rotten_tomato_e.train_rating_values, rotten_tomato_e.train_graph, 
+    args.hop, args.sample_ratio, args.max_nodes_per_hop)
+    
+    
+    
+    
+    
+    
+    
     iter_dur = []
     t_epoch = time.time()
     for iter_idx, batch in enumerate(train_loader, start=1):

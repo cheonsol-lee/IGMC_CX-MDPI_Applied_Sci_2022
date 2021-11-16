@@ -146,11 +146,11 @@ class IGMC(nn.Module):
         x_e = th.cat([concat_states_e[self.users], concat_states_e[self.items]], 1)
 
         # concat 
-        user 임베딩(rse), item 임베딩(rse)
+#         user 임베딩(rse), item 임베딩(rse)
         
         # aggregation 부분
         x = (x_r + x_s + x_e) # residual (element sum)
-        x = th.cat~~~(x_r + x_s + x_e) # concat - 1D 또는 stacking (lin1의 shape 변경하기)
+#         x = th.cat~~~(x_r + x_s + x_e) # concat - 1D 또는 stacking (lin1의 shape 변경하기)
         
         x = F.relu(self.lin1(x))
         x = F.dropout(x, p=0.5, training=self.training)
