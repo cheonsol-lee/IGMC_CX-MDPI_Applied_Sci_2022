@@ -37,57 +37,87 @@ def collate_rotten_tomato(data):
     g_label = th.stack(label_list)
     return g, g_label
 
-# rating, sentiment, emotion 3개 받을때
-def collate_rotten_tomato_multi(data):
-    g_list, label_list = map(list, zip(*data))
-    g = dgl.batch(g_list)
-    g_label = th.stack(label_list)
+
+
+class MultiRottenTomatoDataset(th.utils.data.Dataset):
+    def __init__(self, links, g_labels, graph, 
+                hop, sample_ratio, max_nodes_per_hop):
+        # 리스트로 입력받음
+        self.links = links
+        self.g_labels = g_labels
+        self.graph = graph 
+
+        self.hop = hop
+        self.sample_ratio = sample_ratio
+        self.max_nodes_per_hop = max_nodes_per_hop
+
+    def __len__(self):
+        return len(self.links[0][0])
+
+    def __getitem__(self, idx):
+        # rating
+        u_r, v_r = self.links[0][0][idx], self.links[0][1][idx]
+        g_label_r = self.g_labels[0][idx]
+
+        subgraph_r = subgraph_extraction_labeling(
+            (u_r, v_r), self.graph[0], 
+            hop=self.hop[0], sample_ratio=self.sample_ratio[0], max_nodes_per_hop=self.max_nodes_per_hop[0])
+        
+        # sentiment
+        u_s, v_s = self.links[1][0][idx], self.links[1][1][idx]
+        g_label_s = self.g_labels[1][idx]
+        
+        subgraph_s = subgraph_extraction_labeling(
+            (u_s, v_s), self.graph[1], 
+            hop=self.hop[1], sample_ratio=self.sample_ratio[1], max_nodes_per_hop=self.max_nodes_per_hop[1])
+        
+        # emotion
+        u_e, v_e = self.links[2][0][idx], self.links[2][1][idx]
+        g_label_e = self.g_labels[2][idx]
+        
+        subgraph_e = subgraph_extraction_labeling(
+            (u_e, v_e), self.graph[2], 
+            hop=self.hop[2], sample_ratio=self.sample_ratio[2], max_nodes_per_hop=self.max_nodes_per_hop[2])
+        
+        
+        # 통합
+        g_label = [g_label_r, g_label_s, g_label_e]
+        subgraph = [subgraph_r, subgraph_s, subgraph_e]
+
+        return subgraph, g_label
+
+# data : tuple 형태(subgraph, g_label)
+def multi_collate_rotten_tomato(data):
+    r_data    = list()
+    s_data = list()
+    e_data   = list()
+
+    # batch 샘플 순서
+    for i in range(len(data)):
+        r_data.append((data[i][0][0], data[i][1][0])) # rating
+        s_data.append((data[i][0][1], data[i][1][1])) # sentiment
+        e_data.append((data[i][0][2], data[i][1][2])) # emotion
+
+   # rating
+    g_list_r, label_list_r = map(list, zip(*r_data))
+    g_r = dgl.batch(g_list_r)
+    g_label_r = th.stack(label_list_r)
+    
+    # sentiment
+    g_list_s, label_list_s = map(list, zip(*s_data))
+    g_s = dgl.batch(g_list_s)
+    g_label_s = th.stack(label_list_s)
+    
+    # emotion
+    g_list_e, label_list_e = map(list, zip(*e_data))
+    g_e = dgl.batch(g_list_e)
+    g_label_e = th.stack(label_list_e)
+    
+    # 리스트로 출력
+    g = [g_r, g_s, g_e]
+    g_label = [g_label_r, g_label_s, g_label_e]
+    
     return g, g_label
 
 
-if __name__ == "__main__":
-    import time
-    from explicit_data_rotten import RottenTomato
-    path = './raw_data/rotten_tomato/'
-    rotten_tomato_r = RottenTomato('rating',    path, testing=args.testing,test_ratio=args.data_test_ratio, valid_ratio=args.data_valid_ratio)
-    rotten_tomato_s = RottenTomato('sentiment', path, testing=args.testing,test_ratio=args.data_test_ratio, valid_ratio=args.data_valid_ratio)
-    rotten_tomato_e = RottenTomato('emotion',   path, testing=args.testing,test_ratio=args.data_test_ratio, valid_ratio=args.data_valid_ratio)
 
-    train_dataset = RottenTomatoDataset(rotten_tomato_r.train_rating_pairs, rotten_tomato_r.train_rating_values, rotten_tomato_r.train_graph, 
-    hop=1, sample_ratio=1.0, max_nodes_per_hop=200)
-
-    train_loader = th.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=0, collate_fn=collate_rotten_tomato)
-    # batch = next(iter(train_loader))
-    
-    
-    # 궁금한 부분!!!!
-    train_dataset_r = RottenTomatoDataset(
-    rotten_tomato_r.train_rating_pairs, rotten_tomato_r.train_rating_values, rotten_tomato_r.train_graph, 
-    args.hop, args.sample_ratio, args.max_nodes_per_hop)
-
-    train_dataset_s = RottenTomatoDataset(
-    rotten_tomato_s.train_rating_pairs, rotten_tomato_s.train_rating_values, rotten_tomato_s.train_graph, 
-    args.hop, args.sample_ratio, args.max_nodes_per_hop)
-
-    train_dataset_e = RottenTomatoDataset(
-    rotten_tomato_e.train_rating_pairs, rotten_tomato_e.train_rating_values, rotten_tomato_e.train_graph, 
-    args.hop, args.sample_ratio, args.max_nodes_per_hop)
-    
-    
-    
-    
-    
-    
-    
-    iter_dur = []
-    t_epoch = time.time()
-    for iter_idx, batch in enumerate(train_loader, start=1):
-        t_iter = time.time()
-        inputs = batch[0] # .to(th.device('cuda:0'))
-
-        iter_dur.append(time.time() - t_iter)
-        if iter_idx % 100 == 0:
-            print("Iter={}, time={:.4f}".format(
-                iter_idx, np.average(iter_dur)))
-            iter_dur = []
-    print("Epoch time={:.2f}".format(time.time()-t_epoch))

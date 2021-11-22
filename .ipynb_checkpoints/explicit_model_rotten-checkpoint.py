@@ -149,7 +149,7 @@ class IGMC(nn.Module):
 #         user 임베딩(rse), item 임베딩(rse)
         
         # aggregation 부분
-        x = (x_r + x_s + x_e) # residual (element sum)
+        x = (x_r*0.5 + x_s*0.25 + x_e*0.25) # residual (element sum)
 #         x = th.cat~~~(x_r + x_s + x_e) # concat - 1D 또는 stacking (lin1의 shape 변경하기)
         
         x = F.relu(self.lin1(x))

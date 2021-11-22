@@ -37,12 +37,14 @@ def collate_rotten_tomato(data):
     g_label = th.stack(label_list)
     return g, g_label
 
+
 # rating, sentiment, emotion 3개 받을때
 def collate_rotten_tomato_multi(data):
     g_list, label_list = map(list, zip(*data))
     g = dgl.batch(g_list)
     g_label = th.stack(label_list)
     return g, g_label
+
 
 
 if __name__ == "__main__":
