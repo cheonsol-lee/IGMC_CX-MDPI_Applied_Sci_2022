@@ -142,19 +142,19 @@ class IGMC(nn.Module):
         self.users = block_r.ndata['nlabel'][:, 0] == 1
         self.items = block_r.ndata['nlabel'][:, 1] == 1
         
-#         # 내부 임베딩 벡터 노드별 출력
-#         emb_r_users = concat_states_r[self.users]
-#         emb_r_items = concat_states_r[self.items]
-#         emb_s_users = concat_states_s[self.users]
-#         emb_s_items = concat_states_s[self.items]
-#         emb_e_users = concat_states_e[self.users]
-#         emb_e_items = concat_states_e[self.items]
+        # 내부 임베딩 벡터 노드별 출력
+        emb_r_users = concat_states_r[self.users]
+        emb_r_items = concat_states_r[self.items]
+        emb_s_users = concat_states_s[self.users]
+        emb_s_items = concat_states_s[self.items]
+        emb_e_users = concat_states_e[self.users]
+        emb_e_items = concat_states_e[self.items]
         
-#         my_dict = {'rating': [emb_r_users.cpu(), emb_r_items.cpu()],
-#                    'sentiment': [emb_s_users.cpu(), emb_s_items.cpu()],
-#                    'emotion': [emb_e_users.cpu(), emb_e_items.cpu()]
-#                   }
-#         emb_df = pd.DataFrame(my_dict)
+        my_dict = {'rating': [emb_r_users.cpu(), emb_r_items.cpu()],
+                   'sentiment': [emb_s_users.cpu(), emb_s_items.cpu()],
+                   'emotion': [emb_e_users.cpu(), emb_e_items.cpu()]
+                  }
+        emb_df = pd.DataFrame(my_dict)
         
         self.x_r = th.cat([concat_states_r[self.users], concat_states_r[self.items]], 1)
         self.x_s = th.cat([concat_states_s[self.users], concat_states_s[self.items]], 1)
@@ -167,8 +167,7 @@ class IGMC(nn.Module):
         self.x = F.dropout(self.x, p=0.5, training=self.training)
         self.x = self.lin2(self.x)
         if self.regression:
-            return self.x[:, 0] * self.multiply_by
-#             return self.x[:, 0] * self.multiply_by, emb_df
+            return self.x[:, 0] * self.multiply_by, emb_df
         else:
             assert False
             # return F.log_softmax(x, dim=-1)

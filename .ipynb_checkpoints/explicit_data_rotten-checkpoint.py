@@ -9,7 +9,6 @@ import torch as th
 
 import dgl 
 from dgl.data.utils import download, extract_archive, get_download_dir
-from refex import extract_refex_feature
 import utils
 
 import os
@@ -27,9 +26,10 @@ from io import BytesIO
 path = './raw_data/rotten_tomato/'
 
 class RottenTomato(object):
-    def __init__(self, label_type, path, testing=False, 
+    def __init__(self, data_type, label_type, path, testing=False, 
                  test_ratio=0.1, valid_ratio=0.2):
         
+        print(f"Data_type: {data_type}")
         print(f"Label_type: {label_type}")
         (
             num_user, num_movie, adj_train, 
@@ -37,7 +37,7 @@ class RottenTomato(object):
             val_labels, val_u_indices, val_v_indices, 
             test_labels, test_u_indices, test_v_indices, 
             class_values
-        ) = load_official_trainvaltest_split(label_type, testing, None, None, 1.0)
+        ) = load_official_trainvaltest_split(data_type, label_type, testing, None, None, 1.0)
             
         self._num_user = num_user
         self._num_movie = num_movie
@@ -97,21 +97,40 @@ def map_data(data):
  
     
 
-def load_official_trainvaltest_split(label_type, testing=False, rating_map=None, post_rating_map=None, ratio=1.0):
+def load_official_trainvaltest_split(data_type, label_type, testing=False, rating_map=None, post_rating_map=None, ratio=1.0):
     dtypes = {'u_nodes': np.int16, 'v_nodes': np.int16, 'ratings': np.float16}
     
-    data_train = pd.read_csv(path + 'trainset_filtered.csv', dtype=dtypes)
-    data_test  = pd.read_csv(path + 'testset_filtered.csv', dtype=dtypes)
+    # data 로드
+    if data_type=='rotten':
+        dtypes = {'u_nodes': np.int64, 'v_nodes': np.int64, 'ratings': np.float64}
+        data_train = pd.read_csv(path + 'rotten_trainset.csv', dtype=dtypes)
+        data_test  = pd.read_csv(path + 'rotten_testset.csv', dtype=dtypes)
+    elif data_type=='amazon':
+        dtypes = {'u_nodes': np.int64, 'v_nodes': np.int64, 'ratings': np.int64}
+        data_train = pd.read_csv(path + 'amazon_trainset.csv', dtype=dtypes)
+        data_test  = pd.read_csv(path + 'amazon_testset.csv', dtype=dtypes)
     
-    if label_type=='rating':
-        data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_0.5':'ratings'}, inplace=True)
-        data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_0.5':'ratings'}, inplace=True)
-    elif label_type=='sentiment':    
-        data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'sentiment':'ratings'}, inplace=True)
-        data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'sentiment':'ratings'}, inplace=True)    
-    elif label_type=='emotion':    
-        data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'emotion':'ratings'}, inplace=True)
-        data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'emotion':'ratings'}, inplace=True)     
+    # label_type에 따른 처리
+    if data_type=='rotten':
+        if label_type=='rating':
+            data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_0.5':'ratings'}, inplace=True)
+            data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_0.5':'ratings'}, inplace=True)
+        elif label_type=='sentiment':    
+            data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'sentiment':'ratings'}, inplace=True)
+            data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'sentiment':'ratings'}, inplace=True)    
+        elif label_type=='emotion':    
+            data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'emotion':'ratings'}, inplace=True)
+            data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'emotion':'ratings'}, inplace=True)   
+    elif data_type=='amazon':
+        if label_type=='rating':
+            data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating':'ratings'}, inplace=True)
+            data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating':'ratings'}, inplace=True)
+        elif label_type=='sentiment':    
+            data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'sentiment':'ratings'}, inplace=True)
+            data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'sentiment':'ratings'}, inplace=True)    
+        elif label_type=='emotion':    
+            data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'emotion':'ratings'}, inplace=True)
+            data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'emotion':'ratings'}, inplace=True)   
         
     columns = ['u_nodes','v_nodes','ratings']
 
