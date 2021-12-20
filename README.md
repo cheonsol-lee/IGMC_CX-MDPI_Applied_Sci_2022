@@ -31,6 +31,6 @@ Training set for BERT
 ## Results
 
 |Dataset|Our code <br> best of epochs|
-|:-:|:-:|:-:|
+|:-:|:-:|
 |Rotten Tomatoes|0.8004|
 |Amazon Movie|0.9621|
