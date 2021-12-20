@@ -1,7 +1,7 @@
 # Improving Graph-Based Movie Recommender System Using Cinematic Experience
 
 - (2021.12.20) Cheonsol Lee submitted this paper in [Applied Science in MDPI](https://www.mdpi.com/journal/applsci)
-- (2021.10.15) Cheonsol Lee submitted this paper in [IEEE BigComp2022](http://www.bigcomputing.org/)
+- (2021.10.15) Cheonsol Lee submitted short paper in [IEEE BigComp2022](http://www.bigcomputing.org/), [Code]()
 - Author's Paper link: [https://arxiv.org/abs/1904.12058](https://arxiv.org/abs/1904.12058)
 - Author's code: [https://github.com/muhanzhang/IGMC](https://github.com/muhanzhang/IGMC)
 - Reference code: [https://github.com/zhoujf620/Motif-based-inductive-GNN-training](https://github.com/zhoujf620/Motif-based-inductive-GNN-training)
