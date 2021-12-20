@@ -9,7 +9,6 @@ import torch as th
 
 import dgl 
 from dgl.data.utils import download, extract_archive, get_download_dir
-from refex import extract_refex_feature
 import utils
 
 import os
@@ -24,19 +23,19 @@ from urllib.request import urlopen
 from zipfile import ZipFile
 from io import BytesIO
 
-path = './raw_data/rotten_tomato/'
-
 class RottenTomato(object):
-    def __init__(self, path, testing=False, 
+    def __init__(self, data_type, label_type, path, testing=False, 
                  test_ratio=0.1, valid_ratio=0.2):
         
-        print("Create RottenTomato Class...")
+        print(f"Data_type: {data_type}")
+        print(f"Label_type: {label_type}")
         (
-            num_user, num_movie, adj_train, train_labels, train_u_indices, train_v_indices,
-            val_labels, val_u_indices, val_v_indices, test_labels, test_u_indices, 
-            test_v_indices, class_values
-        ) = load_official_trainvaltest_split(testing, None, None, 1.0)
-
+            num_user, num_movie, adj_train, 
+            train_labels, train_u_indices, train_v_indices,
+            val_labels, val_u_indices, val_v_indices, 
+            test_labels, test_u_indices, test_v_indices, 
+            class_values
+        ) = load_official_trainvaltest_split(data_type, label_type, path, testing, None, None, 1.0)
             
         self._num_user = num_user
         self._num_movie = num_movie
@@ -95,34 +94,44 @@ def map_data(data):
     return data, id_dict, n    
  
     
-# dataset 로드
-def load_official_trainvaltest_split(testing=False, rating_map=None, post_rating_map=None, ratio=1.0):
+
+def load_official_trainvaltest_split(data_type, label_type, path, testing=False, rating_map=None, post_rating_map=None, ratio=1.0):
     dtypes = {'u_nodes': np.int16, 'v_nodes': np.int16, 'ratings': np.float16}
     
-    rating_num = '0.5' # 10점 스케일
-#     rating_num = '5' # 5점 스케일
+    # data 로드
+    if data_type=='rotten':
+        dtypes = {'u_nodes': np.int64, 'v_nodes': np.int64, 'ratings': np.float64}
+        data_train = pd.read_csv(path + 'rotten_trainset.csv', dtype=dtypes)
+        data_test  = pd.read_csv(path + 'rotten_testset.csv', dtype=dtypes)
+    elif data_type=='amazon':
+        dtypes = {'u_nodes': np.int64, 'v_nodes': np.int64, 'ratings': np.int64}
+        data_train = pd.read_csv(path + 'amazon_trainset.csv', dtype=dtypes)
+        data_test  = pd.read_csv(path + 'amazon_testset.csv', dtype=dtypes)
     
-    # Small data
-#     data_train = pd.read_csv(path + 's_trainset.csv', dtype=dtypes)
-#     data_test  = pd.read_csv(path + 's_testset.csv', dtype=dtypes)
-    
-    # Large data
-#     data_train = pd.read_csv(path + 'l_trainset.csv', dtype=dtypes)
-#     data_test  = pd.read_csv(path + 'l_testset.csv', dtype=dtypes)
-    
-#     data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_'+rating_num:'ratings'}, inplace=True)
-#     data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_'+rating_num:'ratings'}, inplace=True)
-#     columns = ['u_nodes','v_nodes','ratings','review_score','sentiment','emotion','review_date','origin_rating_'+rating_num,'review_content']
+    # label_type에 따른 처리
+    if data_type=='rotten':
+        if label_type=='rating':
+            data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_0.5':'ratings'}, inplace=True)
+            data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_0.5':'ratings'}, inplace=True)
+        elif label_type=='sentiment':    
+            data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'sentiment':'ratings'}, inplace=True)
+            data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'sentiment':'ratings'}, inplace=True)    
+        elif label_type=='emotion':    
+            data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'emotion':'ratings'}, inplace=True)
+            data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'emotion':'ratings'}, inplace=True)   
+    elif data_type=='amazon':
+        if label_type=='rating':
+            data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating':'ratings'}, inplace=True)
+            data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating':'ratings'}, inplace=True)
+        elif label_type=='sentiment':    
+            data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'sentiment':'ratings'}, inplace=True)
+            data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'sentiment':'ratings'}, inplace=True)    
+        elif label_type=='emotion':    
+            data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'emotion':'ratings'}, inplace=True)
+            data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'emotion':'ratings'}, inplace=True)   
+        
+    columns = ['u_nodes','v_nodes','ratings']
 
-    # GCMC 데이터 형태(기존 데이터)
-    data_train = pd.read_csv(path + 'trainset_filtered.csv', dtype=dtypes)
-    data_test  = pd.read_csv(path + 'testset_filtered.csv', dtype=dtypes)
-    
-    data_train.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_'+rating_num:'ratings'}, inplace=True)
-    data_test.rename(columns={f'user_id':'u_nodes', 'movie_id':'v_nodes', 'rating_'+rating_num:'ratings'}, inplace=True)
-    columns = ['u_nodes','v_nodes','ratings','review_score','sentiment','emotion','review_date','origin_rating_'+rating_num,'review_content']
-    
-    
     data_train = data_train[columns]
     data_test  = data_test[columns]
     
@@ -164,6 +173,7 @@ def load_official_trainvaltest_split(testing=False, rating_map=None, post_rating
     labels = labels.reshape([-1])
 
     # number of test and validation edges, see cf-nade code
+
     num_train = data_array_train.shape[0]
     num_test = data_array_test.shape[0]
     num_val = int(np.ceil(num_train * 0.2))
