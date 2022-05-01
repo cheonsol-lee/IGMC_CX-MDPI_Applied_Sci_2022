@@ -1,7 +1,7 @@
 # Improving Graph-Based Movie Recommender System Using Cinematic Experience
 
-- (2021.12.20) Cheonsol Lee submitted this paper in [Applied Science in MDPI](https://www.mdpi.com/journal/applsci)
-- (2021.10.15) Cheonsol Lee submitted short paper in [IEEE BigComp2022](http://www.bigcomputing.org/), [Code](https://github.com/cheonsol-lee/bigcomp_2022_multi_graph)
+- (2022.01.28) [Improving Graph-Based Movie Recommender System Using Cinematic Experience](https://www.mdpi.com/2076-3417/12/3/1493) in Applied Science in MDPI
+- (2022.01.20) [Multi-Relational Stacking Ensemble Recommender System Using Cinematic Experience](https://ieeexplore.ieee.org/document/9736528) in IEEE BigComp2022, [Code](https://github.com/cheonsol-lee/bigcomp_2022_multi_graph)
 - Author's Paper link: [https://arxiv.org/abs/1904.12058](https://arxiv.org/abs/1904.12058)
 - Author's code: [https://github.com/muhanzhang/IGMC](https://github.com/muhanzhang/IGMC)
 - Reference code: [https://github.com/zhoujf620/Motif-based-inductive-GNN-training](https://github.com/zhoujf620/Motif-based-inductive-GNN-training)
