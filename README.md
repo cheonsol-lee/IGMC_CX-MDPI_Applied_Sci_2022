@@ -1,5 +1,5 @@
 # Improving Graph-Based Movie Recommender System Using Cinematic Experience
-
+MDPI Applied Science 논문 게재
 - (2022.01.28) [Improving Graph-Based Movie Recommender System Using Cinematic Experience](https://www.mdpi.com/2076-3417/12/3/1493) in Applied Science in MDPI
 - (2022.01.20) [Multi-Relational Stacking Ensemble Recommender System Using Cinematic Experience](https://ieeexplore.ieee.org/document/9736528) in IEEE BigComp2022, [Code](https://github.com/cheonsol-lee/bigcomp_2022_multi_graph)
 - Author's Paper link: [https://arxiv.org/abs/1904.12058](https://arxiv.org/abs/1904.12058)
